@@ -1,11 +1,11 @@
 name: build
 
 on:
-  push:
-    branches: 
-      - '**'
-    paths:
-      - "**"
+  workflow_call:
+    inputs:
+      image_tags:
+        required: true
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -28,7 +28,7 @@ jobs:
         id: meta-api
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ inputs.image_name }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             ${{ inputs.image_tags }}
 
