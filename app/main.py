@@ -34,7 +34,7 @@ async def ping():
 @app.get("/static", response_class=HTMLResponse)
 def list_files(request: Request):
 
-    files = os.listdir("./static")
+    files = os.listdir(static_file_dir)
     files_paths = sorted([{"path": f, "url": f"{request.url._url}/{f}"} for f in files], key=lambda x: x["path"])
     return templates.TemplateResponse(
         "list_files.html", {"request": request, "files": files_paths}
