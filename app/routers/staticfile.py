@@ -35,6 +35,6 @@ def generate_directory_listing(directory_path: Path, path: str):
     listing = "<h1>Directory Listing</h1>"
     listing += "<ul>"
     for item in directory_path.iterdir():
-        listing += f"<li><a href='{Path(path) / item.name}'>{item.name}</a></li>"
+        listing += f"<li><a href='/static/{Path(path) / item.name}'>{item.name}</a></li>"
     listing += "</ul>"
     return listing
