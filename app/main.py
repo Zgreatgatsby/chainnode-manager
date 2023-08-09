@@ -1,9 +1,7 @@
 import os
 
-from fastapi import Depends, FastAPI, Request, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
 from app.routers import staticfile
@@ -15,7 +13,7 @@ if not os.path.exists(static_file_dir):
 
 app = FastAPI(dependencies=[])
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-#app.mount('/static', StaticFiles(directory=static_file_dir), name='static')
+# app.mount('/static', StaticFiles(directory=static_file_dir), name='static')
 # @app.get("/static", response_class=HTMLResponse)
 # def list_files(request: Request):
 #
