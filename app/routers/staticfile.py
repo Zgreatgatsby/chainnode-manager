@@ -22,7 +22,7 @@ async def download_normal(filename: str):
 
 @router.get("/static/{path:path}")
 async def serve_file(path: str):
-    full_path = Path("static") / path
+    full_path = Path(static_file_dir) / path
     if full_path.is_file():
         return FileResponse(full_path)
     elif full_path.is_dir():

@@ -13,6 +13,7 @@ if not os.path.exists(static_file_dir):
 
 app = FastAPI(dependencies=[])
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+# templates = Jinja2Templates(directory="templates")
 # app.mount('/static', StaticFiles(directory=static_file_dir), name='static')
 # @app.get("/static", response_class=HTMLResponse)
 # def list_files(request: Request):
@@ -23,8 +24,6 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 #         "list_files.html", {"request": request, "files": files_paths}
 #     )
 app.include_router(staticfile.router)
-
-templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
