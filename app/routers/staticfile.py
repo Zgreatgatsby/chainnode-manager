@@ -26,15 +26,15 @@ async def serve_file(path: str):
     if full_path.is_file():
         return FileResponse(full_path)
     elif full_path.is_dir():
-        return HTMLResponse(generate_directory_listing(full_path))
+        return HTMLResponse(generate_directory_listing(full_path, path))
     else:
         raise HTTPException(status_code=404, detail="File not found")
 
 
-def generate_directory_listing(directory_path):
+def generate_directory_listing(directory_path: Path, path: str):
     listing = "<h1>Directory Listing</h1>"
     listing += "<ul>"
     for item in directory_path.iterdir():
-        listing += f"<li><a href='{directory_path / item.name}'>{directory_path / item.name}</a></li>"
+        listing += f"<li><a href='{Path(path) / item.name}'>{item.name}</a></li>"
     listing += "</ul>"
     return listing
