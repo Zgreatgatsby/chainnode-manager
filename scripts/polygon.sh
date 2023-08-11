@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-#
+#!/bin/bash
+
 function validate_network() {
   if [[ "$1" != "mainnet" && "$1" != "mumbai" ]]; then
     echo "Invalid network input. Please enter 'mainnet' or 'mumbai'."
@@ -8,8 +8,15 @@ function validate_network() {
 }
 
 function validate_client() {
-  if [[ "$1" != "heimdall" && "$1" != "bor" ]]; then
-    echo "Invalid client input. Please enter 'heimdall' or 'bor'."
+  if [[ "$1" != "heimdall" && "$1" != "bor" && "$1" != "erigon" ]]; then
+    echo "Invalid client input. Please enter 'heimdall' or 'bor' or 'erigon'."
+    exit 1
+  fi
+}
+
+function validate_checksum() {
+  if [[ "$1" != "true" && "$1" != "false" ]]; then
+    echo "Invalid checksum input. Please enter 'true' or 'false'."
     exit 1
   fi
 }
@@ -17,26 +24,44 @@ function validate_client() {
 # ask user for network and client type
 read -p "PoSV1 Network (mainnet/mumbai): " network_input
 validate_network "$network_input"
-read -p "Client Type (heimdall/bor): " client_input
+read -p "Client Type (heimdall/bor/erigon): " client_input
 validate_client "$client_input"
 read -p "Directory to Download/Extract: " extract_dir_input
+read -p "Perform checksum verification (true/false): " checksum_input
+validate_checksum "$checksum_input"
 
 # set default values if user input is blank
 network=${network_input:-mumbai}
 client=${client_input:-heimdall}
 extract_dir=${extract_dir_input:-"${client}_extract"}
+checksum=${checksum_input:-false}
+
+# temporary as we transition erigon mainnet snapshots to new incremental model, ETA Aug 2023
+if [[ "$client" == "erigon" && "$network" == "mainnet" ]]; then
+  echo "Erigon bor-mainnet archive snapshots currently unavailable as we transition to incremental snapshot model. ETA Aug 2023."
+  exit 1
+fi
 
 # install dependencies and cursor to extract directory
-sudo apt-get update -y
-sudo apt-get install -y zstd pv aria2
+apt-get update -y
+apt-get install -y zstd pv aria2
 mkdir -p "$extract_dir"
 cd "$extract_dir"
 
 # download compiled incremental snapshot files list
 aria2c -x6 -s6 "https://snapshot-download.polygon.technology/$client-$network-incremental-compiled-files.txt"
 
+# remove hash lines if user declines checksum verification
+if [ "$checksum" == "false" ]; then
+    sed -i '/checksum/d' $client-$network-incremental-compiled-files.txt
+fi
+
 # download all incremental files, includes automatic checksum verification per increment
-aria2c -x6 -s6 -c --auto-file-renaming=false --max-tries=100 -i $client-$network-incremental-compiled-files.txt
+#aria2c -x16 -s16 -c --auto-file-renaming=false --max-tries=100 -i $client-$network-incremental-compiled-files.txt
+while IFS= read -r url; do
+    wget -c "$url"
+done < "$client-$network-increenttal-compiled-files.txt"
+
 
 # Don't extract if download failed
 if [ $? -ne 0 ]; then
@@ -61,4 +86,5 @@ function extract_files() {
 }
 
 # execute final data extraction step
-extract_files $client-$network-incremental-compiled-files.txt
+#extract_files $client-$network-incremental-compiled-files.txt
+
